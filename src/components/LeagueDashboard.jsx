@@ -69,6 +69,14 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
             let wins = 0;
             let losses = 0;
 
+            // Debug for first team - log full record structure
+            if (index === 0) {
+              console.log('Full record object:', JSON.stringify(team.record, null, 2));
+              if (team.record?.overall) {
+                console.log('overall object keys:', Object.keys(team.record.overall));
+              }
+            }
+
             // Try record.overall.wins/losses (v3 format)
             if (team.record?.overall?.wins !== undefined) {
               wins = team.record.overall.wins;
@@ -87,6 +95,10 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
             // Fallback: look for any record structure
             else {
               console.warn(`Team ${team.id} has no recognizable wins/losses structure:`, team.record);
+            }
+
+            if (index === 0) {
+              console.log(`Extracted from team: wins=${wins}, losses=${losses}`);
             }
 
             const pointsFor = team.points || 0;
