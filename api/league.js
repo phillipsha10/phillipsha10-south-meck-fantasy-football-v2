@@ -29,21 +29,39 @@ export default async function handler(req, res) {
     // Build the ESPN API URL
     let url = `https://lm-api-reads.fantasy.espn.com/apis/site/v2/sports/football/classic/leagues/${leagueId}`;
 
-    // Add query parameters
-    const params = [];
-    if (view) params.push(`view=${view}`);
-    if (seasonId) params.push(`seasonId=${seasonId}`);
-    if (teamId) params.push(`teamId=${teamId}`);
-    if (weekId) params.push(`matchupPeriodId=${weekId}`);
+    // Add query parameters - build as array to handle multiple view params
+    const params = new URLSearchParams();
+    if (view) {
+      // view can be comma-separated or multiple params
+      const views = Array.isArray(view) ? view : view.split(',');
+      views.forEach(v => params.append('view', v.trim()));
+    }
+    if (seasonId) params.append('seasonId', seasonId);
+    if (teamId) params.append('teamId', teamId);
+    if (weekId) params.append('matchupPeriodId', weekId);
 
-    if (params.length > 0) {
-      url += '?' + params.join('&');
+    const queryString = params.toString();
+    if (queryString) {
+      url += '?' + queryString;
     }
 
-    // Fetch from ESPN API
-    const espnResponse = await fetch(url);
+    console.log('Fetching ESPN API:', url);
+
+    // Fetch from ESPN API with proper headers
+    const espnResponse = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
+        'Accept-Encoding': 'gzip, deflate',
+      },
+    });
+
+    console.log('ESPN API Response Status:', espnResponse.status);
 
     if (!espnResponse.ok) {
+      const errorText = await espnResponse.text();
+      console.error('ESPN API Error:', errorText);
       return res.status(espnResponse.status).json({
         error: `ESPN API returned ${espnResponse.status}`,
         message: `Failed to fetch league data: ${espnResponse.statusText}`,
@@ -51,6 +69,7 @@ export default async function handler(req, res) {
     }
 
     const data = await espnResponse.json();
+    console.log('Successfully fetched ESPN data');
 
     // Return with CORS headers
     res.status(200).json(data);
