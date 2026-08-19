@@ -10,16 +10,37 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
   const [teams, setTeams] = useState([]);
   const [matchups, setMatchups] = useState([]);
   const [selectedSeason, setSelectedSeason] = useState(2026);
+  const [seasonLeagueData, setSeasonLeagueData] = useState(leagueData);
 
   // Available seasons for selection
-  const availableSeasons = [2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014];
+  const availableSeasons = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014];
+
+  // Fetch league data when season changes
+  useEffect(() => {
+    const fetchSeasonData = async () => {
+      try {
+        console.log(`Fetching data for season ${selectedSeason}...`);
+        const response = await fetch(`/api/league?seasonId=${selectedSeason}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch season ${selectedSeason}`);
+        }
+        const data = await response.json();
+        console.log(`Successfully fetched ${selectedSeason} data:`, data);
+        setSeasonLeagueData(data);
+      } catch (error) {
+        console.error(`Error fetching season ${selectedSeason}:`, error);
+      }
+    };
+
+    fetchSeasonData();
+  }, [selectedSeason]);
 
   // Transform team data from ESPN API (handles both v2 and v3 formats)
   useEffect(() => {
-    console.log('LeagueDashboard received leagueData:', leagueData);
-    if (leagueData && leagueData.teams && leagueData.teams.length > 0) {
-      console.log('Teams found, count:', leagueData.teams.length);
-      console.log('First team raw data:', JSON.stringify(leagueData.teams[0], null, 2));
+    console.log('LeagueDashboard transforming seasonLeagueData:', seasonLeagueData);
+    if (seasonLeagueData && seasonLeagueData.teams && seasonLeagueData.teams.length > 0) {
+      console.log('Teams found, count:', seasonLeagueData.teams.length);
+      console.log('First team raw data:', JSON.stringify(seasonLeagueData.teams[0], null, 2));
 
       try {
         const transformedTeams = leagueData.teams.map((team, index) => {
@@ -107,9 +128,9 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
         console.error('Error in team transformation:', error);
       }
     } else {
-      console.log('No teams data available:', leagueData?.teams);
+      console.log('No teams data available:', seasonLeagueData?.teams);
     }
-  }, [leagueData]);
+  }, [seasonLeagueData]);
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -205,5 +226,4 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
 };
 
 export default LeagueDashboard;
-
 
