@@ -94,16 +94,25 @@ export const getCurrentSeason = (leagueData) => {
  * Transform ESPN API team data to our format
  */
 export const transformTeamData = (team) => {
+  // Handle both v2 and v3 API formats
+  const location = team.location || '';
+  const nickname = team.nickname || '';
+  const teamName = `${location} ${nickname}`.trim() || `Team ${team.id}`;
+
+  const ownerFirstName = team.owner?.firstName || team.primaryOwner?.firstName || '';
+  const ownerLastName = team.owner?.lastName || team.primaryOwner?.lastName || '';
+  const owner = `${ownerFirstName} ${ownerLastName}`.trim() || 'Unknown';
+
   return {
     teamId: team.id,
-    teamName: team.location + ' ' + team.nickname,
-    owner: team.owner?.firstName + ' ' + team.owner?.lastName || 'Unknown',
+    teamName: teamName,
+    owner: owner,
     logo: team.logoUrl || '',
-    wins: team.record?.wins || 0,
-    losses: team.record?.losses || 0,
-    ties: team.record?.ties || 0,
-    pointsFor: team.points || 0,
-    pointsAgainst: team.pointsAgainst || 0,
+    wins: team.record?.[0]?.wins || team.record?.wins || 0,
+    losses: team.record?.[0]?.losses || team.record?.losses || 0,
+    ties: team.record?.[0]?.ties || team.record?.ties || 0,
+    pointsFor: team.record?.[0]?.pointsFor || team.points || 0,
+    pointsAgainst: team.record?.[0]?.pointsAgainst || team.pointsAgainst || 0,
     streak: team.streak?.value || 0,
     streakType: team.streak?.streakType || 'NONE',
   };
