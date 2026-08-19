@@ -54,7 +54,19 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
 
           // Transform Google Sheet data to ESPN format for compatibility
           if (sheetData.data && sheetData.data.length > 0) {
+            console.log('Sheet headers:', sheetData.headers);
+            console.log('First row raw data:', sheetData.data[0]);
+
             const transformedTeams = sheetData.data.map((row, index) => {
+              const wins = parseInt(row.Wins) || 0;
+              const losses = parseInt(row.Losses) || parseInt(row['Losses']) || 0;
+              const championships = parseInt(row.Championships) || 0;
+              const runnersUp = parseInt(row['Runner-up']) || 0;
+
+              if (index === 0) {
+                console.log(`First team data:`, { wins, losses, championships, runnersUp });
+              }
+
               return {
                 id: index + 1,
                 name: row.TEAM || `Team ${index + 1}`,
@@ -62,10 +74,12 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
                 logo: '🏈',
                 points: parseFloat(row.PF) || 0,
                 pointsAgainst: parseFloat(row.PA) || 0,
+                championships: championships,
+                runnersUp: runnersUp,
                 record: {
                   overall: {
-                    wins: parseInt(row.Wins) || 0,
-                    losses: parseInt(row.Losses) || 0,
+                    wins: wins,
+                    losses: losses,
                     percentage: parseFloat(row['Win %']) || 0,
                     pointsFor: parseFloat(row.PF) || 0,
                     pointsAgainst: parseFloat(row.PA) || 0,
