@@ -28,10 +28,11 @@ function App() {
     const loadLeagueData = async () => {
       try {
         setLoading(true);
-        // Fetch from ESPN API with CORS proxy
-        const leagueId = '809120';
+         try {
+        setLoading(true);
+        // Fetch from our Vercel serverless function (which proxies ESPN API)
         const response = await fetch(
-          `https://cors-anywhere.herokuapp.com/https://lm-api-reads.fantasy.espn.com/apis/site/v2/sports/football/classic/leagues/${leagueId}?view=mTeam&view=mSettings&view=mStandings`
+          '/api/league'
         );
 
         if (!response.ok) {
