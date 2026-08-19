@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
+const SEASONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014];
+
 const AllTimeStats = ({ darkMode }) => {
   const [careerStats, setCareerStats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('wins');
-
-  const seasons = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014];
 
   useEffect(() => {
     const fetchAllSeasonData = async () => {
@@ -14,7 +14,7 @@ const AllTimeStats = ({ darkMode }) => {
         const allStats = {};
 
         // Fetch data for each season
-        for (const season of seasons) {
+        for (const season of SEASONS) {
           try {
             const response = await fetch(`/api/league?seasonId=${season}`);
             if (!response.ok) continue;
@@ -87,7 +87,7 @@ const AllTimeStats = ({ darkMode }) => {
     };
 
     fetchAllSeasonData();
-  }, [seasons]);
+  }, []);
 
   const handleSort = (field) => {
     setSortBy(field);
