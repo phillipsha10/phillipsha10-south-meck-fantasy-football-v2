@@ -16,7 +16,9 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
 
   // Transform team data from ESPN API (handles both v2 and v3 formats)
   useEffect(() => {
+    console.log('LeagueDashboard received leagueData:', leagueData);
     if (leagueData && leagueData.teams) {
+      console.log('Teams found:', leagueData.teams);
       const transformedTeams = leagueData.teams.map((team, index) => {
         // Handle both v2 and v3 API formats
         const location = team.location || '';
