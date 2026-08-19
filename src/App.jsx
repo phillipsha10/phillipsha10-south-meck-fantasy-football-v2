@@ -28,8 +28,6 @@ function App() {
     const loadLeagueData = async () => {
       try {
         setLoading(true);
-         try {
-        setLoading(true);
         // Fetch from our Vercel serverless function (which proxies ESPN API)
         const response = await fetch(
           '/api/league'
