@@ -87,7 +87,7 @@ const AllTimeStats = ({ darkMode }) => {
     };
 
     fetchAllSeasonData();
-  }, []);
+  }, [seasons]);
 
   const handleSort = (field) => {
     setSortBy(field);
@@ -259,3 +259,4 @@ const AllTimeStats = ({ darkMode }) => {
 };
 
 export default AllTimeStats;
+
