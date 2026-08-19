@@ -28,10 +28,9 @@ function App() {
     const loadLeagueData = async () => {
       try {
         setLoading(true);
-        // Fetch from ESPN API
-        const leagueId = process.env.REACT_APP_ESPN_LEAGUE_ID || '809120';
+        // Fetch from our Vercel serverless function (which proxies ESPN API)
         const response = await fetch(
-          `https://lm-api-reads.fantasy.espn.com/apis/site/v2/sports/football/classic/leagues/${leagueId}?view=mTeam&view=mSettings&view=mStandings`
+          '/api/league?view=mTeam&view=mSettings&view=mStandings'
         );
 
         if (!response.ok) {
