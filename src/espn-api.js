@@ -1,8 +1,10 @@
 // ESPN Fantasy Football API Integration
 // Public League ID: 809120 (South Mecklenburg High School Fantasy Football League)
+// Note: Using Vercel serverless function (/api/league) to proxy ESPN API
+// This avoids CORS issues by making server-to-server requests
 
 const LEAGUE_ID = process.env.REACT_APP_ESPN_LEAGUE_ID || '809120';
-const ESPN_API_BASE = 'https://lm-api-reads.fantasy.espn.com/apis/site/v2/sports/football/classic';
+const API_BASE = '/api/league';
 
 /**
  * Fetch league information including standings and team details
@@ -10,7 +12,7 @@ const ESPN_API_BASE = 'https://lm-api-reads.fantasy.espn.com/apis/site/v2/sports
 export const fetchLeagueData = async () => {
   try {
     const response = await fetch(
-      `${ESPN_API_BASE}/leagues/${LEAGUE_ID}?view=mTeam&view=mSettings`
+      `${API_BASE}?view=mTeam&view=mSettings`
     );
     if (!response.ok) throw new Error(`API responded with status ${response.status}`);
     const data = await response.json();
@@ -27,7 +29,7 @@ export const fetchLeagueData = async () => {
 export const fetchLeagueStandings = async (seasonId) => {
   try {
     const response = await fetch(
-      `${ESPN_API_BASE}/leagues/${LEAGUE_ID}?seasonId=${seasonId}&view=mTeam&view=mSettings&view=mStandings`
+      `${API_BASE}?seasonId=${seasonId}&view=mTeam&view=mSettings&view=mStandings`
     );
     if (!response.ok) throw new Error(`API responded with status ${response.status}`);
     const data = await response.json();
@@ -44,7 +46,7 @@ export const fetchLeagueStandings = async (seasonId) => {
 export const fetchMatchups = async (seasonId, weekId) => {
   try {
     const response = await fetch(
-      `${ESPN_API_BASE}/leagues/${LEAGUE_ID}?seasonId=${seasonId}&view=mMatchup&view=mMatchupScore&matchupPeriodId=${weekId}`
+      `${API_BASE}?seasonId=${seasonId}&view=mMatchup&view=mMatchupScore&weekId=${weekId}`
     );
     if (!response.ok) throw new Error(`API responded with status ${response.status}`);
     const data = await response.json();
@@ -61,7 +63,7 @@ export const fetchMatchups = async (seasonId, weekId) => {
 export const fetchTeamDetails = async (teamId, seasonId) => {
   try {
     const response = await fetch(
-      `${ESPN_API_BASE}/leagues/${LEAGUE_ID}?seasonId=${seasonId}&view=mTeam&view=mRoster&teamId=${teamId}`
+      `${API_BASE}?seasonId=${seasonId}&view=mTeam&view=mRoster&teamId=${teamId}`
     );
     if (!response.ok) throw new Error(`API responded with status ${response.status}`);
     const data = await response.json();
