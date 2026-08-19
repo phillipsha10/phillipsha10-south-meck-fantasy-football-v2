@@ -4,6 +4,7 @@ import Storylines from './Storylines';
 import AwardTracker from './AwardTracker';
 import StatsTracker from './StatsTracker';
 import ChampionshipHistory from './ChampionshipHistory';
+import AllTimeStats from './AllTimeStats';
 
 const LeagueDashboard = ({ leagueData, darkMode }) => {
   const [activeTab, setActiveTab] = useState('standings');
@@ -121,8 +122,8 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
         setTeams(transformedTeams);
 
         // Extract matchups if available
-        if (leagueData.schedule) {
-          setMatchups(leagueData.schedule);
+        if (seasonLeagueData.schedule) {
+          setMatchups(seasonLeagueData.schedule);
         }
       } catch (error) {
         console.error('Error in team transformation:', error);
@@ -142,6 +143,8 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
         return <AwardTracker teams={teams} matchups={matchups} />;
       case 'stats':
         return <StatsTracker teams={teams} />;
+      case 'alltime':
+        return <AllTimeStats darkMode={darkMode} />;
       case 'history':
         return <ChampionshipHistory />;
       default:
@@ -203,6 +206,12 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
           onClick={() => setActiveTab('stats')}
         >
           📈 Stats
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'alltime' ? 'active' : ''}`}
+          onClick={() => setActiveTab('alltime')}
+        >
+          ⭐ All-Time
         </button>
         <button
           className={`tab-button ${activeTab === 'history' ? 'active' : ''}`}
