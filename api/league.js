@@ -25,8 +25,11 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Get season from query params, default to 2026
+    const seasonId = req.query.seasonId || '2026';
+
     // ESPN API endpoint - confirmed working
-    const espnUrl = 'https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/809120?view=mSettings&view=mTeam&view=mStandings';
+    const espnUrl = `https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/${seasonId}/segments/0/leagues/809120?view=mSettings&view=mTeam&view=mStandings`;
 
     console.log('Fetching ESPN API:', espnUrl);
 
