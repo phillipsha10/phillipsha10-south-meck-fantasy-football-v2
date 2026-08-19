@@ -7,6 +7,7 @@ const AllTimeStats = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('wins');
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchAllSeasonData = async () => {
       try {
