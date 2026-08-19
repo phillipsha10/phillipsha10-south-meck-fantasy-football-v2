@@ -6,7 +6,6 @@ const BrandedHeader = ({ leagueData }) => {
   const currentSeason = leagueData.season || new Date().getFullYear();
   const teamCount = leagueData.teams?.length || 0;
 
-
   return (
     <div className="hero-header">
       <h1>🏆 {leagueData.name || 'South Mecklenburg Fantasy Football'}</h1>
