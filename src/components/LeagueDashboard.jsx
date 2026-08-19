@@ -16,6 +16,13 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
   // Available seasons for selection
   const availableSeasons = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014];
 
+  // Update seasonLeagueData when initial leagueData arrives
+  useEffect(() => {
+    if (leagueData && selectedSeason === 2026) {
+      setSeasonLeagueData(leagueData);
+    }
+  }, [leagueData]);
+
   // Fetch league data when season changes
   useEffect(() => {
     const fetchSeasonData = async () => {
