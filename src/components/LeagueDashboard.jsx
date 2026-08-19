@@ -18,7 +18,7 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
 
   // Update seasonLeagueData when initial leagueData arrives
   useEffect(() => {
-    if (leagueData && selectedSeason === 2026) {
+    if (leagueData) {
       setSeasonLeagueData(leagueData);
     }
   }, [leagueData]);
@@ -51,7 +51,7 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
       console.log('First team raw data:', JSON.stringify(seasonLeagueData.teams[0], null, 2));
 
       try {
-        const transformedTeams = leagueData.teams.map((team, index) => {
+        const transformedTeams = seasonLeagueData.teams.map((team, index) => {
           try {
             // ESPN v3 API format
             const teamName = team.name || `Team ${team.id}`;
@@ -242,4 +242,3 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
 };
 
 export default LeagueDashboard;
-
