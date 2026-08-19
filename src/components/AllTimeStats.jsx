@@ -7,7 +7,6 @@ const AllTimeStats = ({ darkMode }) => {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('wins');
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchAllSeasonData = async () => {
       try {
@@ -71,15 +70,8 @@ const AllTimeStats = ({ darkMode }) => {
           }
         }
 
-        // Convert to array and sort
-        const statsArray = Object.values(allStats).sort((a, b) => {
-          if (sortBy === 'wins') return b.totalWins - a.totalWins;
-          if (sortBy === 'losses') return a.totalLosses - b.totalLosses;
-          if (sortBy === 'pointsFor') return b.totalPointsFor - a.totalPointsFor;
-          return 0;
-        });
-
-        setCareerStats(statsArray);
+        // Store unsorted stats
+        setCareerStats(Object.values(allStats));
         setLoading(false);
       } catch (error) {
         console.error('Error fetching all season data:', error);
@@ -89,6 +81,18 @@ const AllTimeStats = ({ darkMode }) => {
 
     fetchAllSeasonData();
   }, []);
+
+  // Sort stats when sortBy changes
+  useEffect(() => {
+    setCareerStats((prevStats) =>
+      [...prevStats].sort((a, b) => {
+        if (sortBy === 'wins') return b.totalWins - a.totalWins;
+        if (sortBy === 'losses') return a.totalLosses - b.totalLosses;
+        if (sortBy === 'pointsFor') return b.totalPointsFor - a.totalPointsFor;
+        return 0;
+      })
+    );
+  }, [sortBy]);
 
   const handleSort = (field) => {
     setSortBy(field);
