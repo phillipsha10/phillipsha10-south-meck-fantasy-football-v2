@@ -17,45 +17,97 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
   // Transform team data from ESPN API (handles both v2 and v3 formats)
   useEffect(() => {
     console.log('LeagueDashboard received leagueData:', leagueData);
-    if (leagueData && leagueData.teams) {
-      console.log('Teams found:', leagueData.teams);
-      const transformedTeams = leagueData.teams.map((team, index) => {
-        // ESPN v3 API format
-        const teamName = team.name || `Team ${team.id}`;
+    if (leagueData && leagueData.teams && leagueData.teams.length > 0) {
+      console.log('Teams found, count:', leagueData.teams.length);
+      console.log('First team raw data:', JSON.stringify(leagueData.teams[0], null, 2));
 
-        // Owners are UUIDs in v3 API - use abbreviation as fallback
-        const owner = team.abbrev || 'Unknown';
+      try {
+        const transformedTeams = leagueData.teams.map((team, index) => {
+          try {
+            // ESPN v3 API format
+            const teamName = team.name || `Team ${team.id}`;
+            const owner = team.abbrev || 'Unknown';
 
-        // Record structure in v3: record.overall has wins/losses
-        const overallRecord = team.record?.overall || {};
-        const wins = overallRecord.wins || 0;
-        const losses = overallRecord.losses || 0;
-        const pointsFor = team.points || 0;
-        const pointsAgainst = team.pointsAgainst || 0;
+            // Debug: log the record structure for first team
+            if (index === 0) {
+              console.log('First team record object:', team.record);
+              if (team.record?.overall) {
+                console.log('First team record.overall:', team.record.overall);
+              }
+            }
 
-        console.log(`Team ${team.id}:`, { teamName, wins, losses, pointsFor, pointsAgainst });
+            // Record structure in v3: try multiple possible locations
+            let wins = 0;
+            let losses = 0;
 
-        return {
-          rank: index + 1,
-          teamId: team.id,
-          teamName: teamName,
-          owner: owner,
-          logo: team.logo || '🏈',
-          wins: wins,
-          losses: losses,
-          pointsFor: Math.round(pointsFor),
-          pointsAgainst: Math.round(pointsAgainst),
-          streak: team.streak?.value || 0,
-          streakType: team.streak?.streakType || 'NONE',
-        };
-      });
+            // Try record.overall.wins/losses (v3 format)
+            if (team.record?.overall?.wins !== undefined) {
+              wins = team.record.overall.wins;
+              losses = team.record.overall.losses || 0;
+            }
+            // Try record array format (v2)
+            else if (Array.isArray(team.record) && team.record[0]) {
+              wins = team.record[0].wins || 0;
+              losses = team.record[0].losses || 0;
+            }
+            // Try direct record properties
+            else if (team.record?.wins !== undefined) {
+              wins = team.record.wins;
+              losses = team.record.losses || 0;
+            }
+            // Fallback: look for any record structure
+            else {
+              console.warn(`Team ${team.id} has no recognizable wins/losses structure:`, team.record);
+            }
 
-      setTeams(transformedTeams);
+            const pointsFor = team.points || 0;
+            const pointsAgainst = team.pointsAgainst || 0;
 
-      // Extract matchups if available
-      if (leagueData.schedule) {
-        setMatchups(leagueData.schedule);
+            console.log(`Team ${index} (ID: ${team.id}):`, { teamName, owner, wins, losses, pointsFor, pointsAgainst });
+
+            return {
+              rank: index + 1,
+              teamId: team.id,
+              teamName: teamName,
+              owner: owner,
+              logo: team.logo || '🏈',
+              wins: wins,
+              losses: losses,
+              pointsFor: Math.round(pointsFor),
+              pointsAgainst: Math.round(pointsAgainst),
+              streak: team.streak?.value || 0,
+              streakType: team.streak?.streakType || 'NONE',
+            };
+          } catch (teamError) {
+            console.error(`Error transforming team ${index}:`, teamError);
+            return {
+              rank: index + 1,
+              teamId: team.id,
+              teamName: `Team ${team.id}`,
+              owner: 'Unknown',
+              logo: '🏈',
+              wins: 0,
+              losses: 0,
+              pointsFor: 0,
+              pointsAgainst: 0,
+              streak: 0,
+              streakType: 'NONE',
+            };
+          }
+        });
+
+        console.log('Transformed teams:', transformedTeams);
+        setTeams(transformedTeams);
+
+        // Extract matchups if available
+        if (leagueData.schedule) {
+          setMatchups(leagueData.schedule);
+        }
+      } catch (error) {
+        console.error('Error in team transformation:', error);
       }
+    } else {
+      console.log('No teams data available:', leagueData?.teams);
     }
   }, [leagueData]);
 
