@@ -79,7 +79,15 @@ const StandingsTable = ({ teams }) => {
               <td>
                 <span className="rank-badge">{team.rank}</span>
               </td>
-              <td style={{ fontWeight: '600' }}>{team.teamName}</td>
+              <td style={{ fontWeight: '600' }}>
+                {team.teamName}
+                {team.championships > 0 && (
+                  <span style={{ marginLeft: '0.5rem' }} title="Champion">🏆</span>
+                )}
+                {team.runnersUp > 0 && (
+                  <span style={{ marginLeft: '0.3rem' }} title="Runner-up">🥈</span>
+                )}
+              </td>
               <td>{team.owner}</td>
               <td>
                 {team.wins}-{team.losses}
