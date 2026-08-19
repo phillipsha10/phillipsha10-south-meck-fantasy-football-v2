@@ -78,13 +78,11 @@ const StatsTracker = ({ teams }) => {
         </thead>
         <tbody>
           {sortedTeams.map((team) => {
-  const differential = team.pointsFor - team.pointsAgainst;
-  const avgPerGame2 = team.wins + team.losses > 0
-    ? (team.pointsFor / (team.wins + team.losses)).toFixed(1)
-    : '0.0';
-  
-  return (
-            
+            const differential = team.pointsFor - team.pointsAgainst;
+            const avgPerGame2 = team.wins + team.losses > 0
+              ? (team.pointsFor / (team.wins + team.losses)).toFixed(1)
+              : '0.0';
+
             return (
               <tr key={team.teamId}>
                 <td style={{ fontWeight: '600' }}>{team.teamName}</td>
