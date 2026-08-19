@@ -20,28 +20,27 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
     if (leagueData && leagueData.teams) {
       console.log('Teams found:', leagueData.teams);
       const transformedTeams = leagueData.teams.map((team, index) => {
-        // Handle both v2 and v3 API formats
-        const location = team.location || '';
-        const nickname = team.nickname || '';
-        const teamName = `${location} ${nickname}`.trim() || `Team ${team.id}`;
+        // ESPN v3 API format
+        const teamName = team.name || `Team ${team.id}`;
 
-        const ownerFirstName = team.owner?.firstName || team.primaryOwner?.firstName || '';
-        const ownerLastName = team.owner?.lastName || team.primaryOwner?.lastName || '';
-        const owner = `${ownerFirstName} ${ownerLastName}`.trim() || 'Unknown';
+        // Owners are UUIDs in v3 API - use abbreviation as fallback
+        const owner = team.abbrev || 'Unknown';
 
-        // Handle v3 API record format (array) vs v2 (object)
-        const record = Array.isArray(team.record) ? team.record[0] : team.record;
-        const wins = record?.wins || 0;
-        const losses = record?.losses || 0;
-        const pointsFor = record?.pointsFor || team.points || 0;
-        const pointsAgainst = record?.pointsAgainst || team.pointsAgainst || 0;
+        // Record structure in v3: record.overall has wins/losses
+        const overallRecord = team.record?.overall || {};
+        const wins = overallRecord.wins || 0;
+        const losses = overallRecord.losses || 0;
+        const pointsFor = team.points || 0;
+        const pointsAgainst = team.pointsAgainst || 0;
+
+        console.log(`Team ${team.id}:`, { teamName, wins, losses, pointsFor, pointsAgainst });
 
         return {
           rank: index + 1,
           teamId: team.id,
           teamName: teamName,
           owner: owner,
-          logo: team.logoUrl || '🏈',
+          logo: team.logo || '🏈',
           wins: wins,
           losses: losses,
           pointsFor: Math.round(pointsFor),
