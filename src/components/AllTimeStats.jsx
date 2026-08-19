@@ -11,67 +11,46 @@ const AllTimeStats = ({ darkMode }) => {
     const fetchAllSeasonData = async () => {
       try {
         setLoading(true);
-        const allStats = {};
 
-        // Fetch data for each season
-        for (const season of SEASONS) {
-          try {
-            const response = await fetch(`/api/league?seasonId=${season}`);
-            if (!response.ok) continue;
-
-            const data = await response.json();
-            if (data.teams) {
-              data.teams.forEach((team) => {
-                const teamId = team.id;
-                if (!allStats[teamId]) {
-                  allStats[teamId] = {
-                    teamId: teamId,
-                    teamName: team.name || `Team ${teamId}`,
-                    owner: team.abbrev || 'Unknown',
-                    logo: team.logo || '🏈',
-                    totalWins: 0,
-                    totalLosses: 0,
-                    totalPointsFor: 0,
-                    totalPointsAgainst: 0,
-                    seasonRecords: {},
-                    championships: 0,
-                    runnersUp: 0,
-                  };
-                }
-
-                // Get wins/losses from record.overall or record array
-                let wins = 0;
-                let losses = 0;
-
-                if (team.record?.overall?.wins !== undefined) {
-                  wins = team.record.overall.wins;
-                  losses = team.record.overall.losses || 0;
-                } else if (Array.isArray(team.record) && team.record[0]) {
-                  wins = team.record[0].wins || 0;
-                  losses = team.record[0].losses || 0;
-                } else if (team.record?.wins !== undefined) {
-                  wins = team.record.wins;
-                  losses = team.record.losses || 0;
-                }
-
-                allStats[teamId].totalWins += wins;
-                allStats[teamId].totalLosses += losses;
-                allStats[teamId].totalPointsFor += team.points || 0;
-                allStats[teamId].totalPointsAgainst += team.pointsAgainst || 0;
-                allStats[teamId].seasonRecords[season] = {
-                  wins,
-                  losses,
-                  pointsFor: team.points || 0,
-                };
-              });
-            }
-          } catch (error) {
-            console.error(`Error fetching season ${season}:`, error);
-          }
+        // Fetch from Google Sheet (Overall tab - sorted by Championships)
+        const response = await fetch('/api/google-sheets?tab=overall');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch Google Sheet data: ${response.statusText}`);
         }
 
-        // Store unsorted stats
-        setCareerStats(Object.values(allStats));
+        const sheetData = await response.json();
+        console.log('Google Sheet data received:', sheetData);
+
+        if (!sheetData.data || sheetData.data.length === 0) {
+          console.warn('No data in Google Sheet');
+          setCareerStats([]);
+          setLoading(false);
+          return;
+        }
+
+        // Transform Google Sheet data to our format
+        const stats = sheetData.data.map((row, index) => {
+          return {
+            rank: index + 1,
+            teamName: row.TEAM || 'Unknown',
+            owner: row.TEAM || 'Unknown',
+            logo: '🏈',
+            totalWins: parseInt(row.Wins) || 0,
+            totalLosses: parseInt(row.Losses) || 0,
+            totalPointsFor: parseFloat(row.PF) || 0,
+            totalPointsAgainst: parseFloat(row.PA) || 0,
+            winPercentage: parseFloat(row['Win %']) || 0,
+            pointsPerGame: parseFloat(row['Points Per Game']) || 0,
+            pointsAgainstPerGame: parseFloat(row['Points Against Per Game']) || 0,
+            championships: parseInt(row.Championships) || 0,
+            runnersUp: parseInt(row['Runner-up']) || 0,
+            moves: parseInt(row.Moves) || 0,
+            movesPerSeason: parseFloat(row['Moves Per Season']) || 0,
+          };
+        });
+
+        console.log('Transformed stats:', stats);
+        setCareerStats(stats);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching all season data:', error);
@@ -151,10 +130,10 @@ const AllTimeStats = ({ darkMode }) => {
             {careerStats.map((team, index) => {
               const totalGames = team.totalWins + team.totalLosses;
               const winPercentage =
-                totalGames > 0 ? ((team.totalWins / totalGames) * 100).toFixed(1) : '0.0';
+                totalGames > 0 ? ((team.totalWins / totalGames) * 100).toFixed(1) : team.winPercentage?.toFixed(1) || '0.0';
 
               return (
-                <tr key={team.teamId} className={index % 2 === 0 ? 'even-row' : 'odd-row'}>
+                <tr key={team.teamName} className={index % 2 === 0 ? 'even-row' : 'odd-row'}>
                   <td style={{ fontWeight: 'bold', color: '#c41e3a' }}>{index + 1}</td>
                   <td style={{ fontWeight: '600' }}>
                     {team.logo && <span style={{ marginRight: '0.5rem' }}>{team.logo}</span>}
@@ -166,10 +145,10 @@ const AllTimeStats = ({ darkMode }) => {
                   <td>{winPercentage}%</td>
                   <td style={{ fontWeight: '600' }}>{Math.round(team.totalPointsFor)}</td>
                   <td style={{ fontWeight: '700', color: '#d4af37', fontSize: '1.1rem' }}>
-                    {team.championships || '0'} 🏆
+                    {team.championships || 0} 🏆
                   </td>
                   <td style={{ fontWeight: '700', color: '#888' }}>
-                    {team.runnersUp || '0'} 🥈
+                    {team.runnersUp || 0} 🥈
                   </td>
                 </tr>
               );
