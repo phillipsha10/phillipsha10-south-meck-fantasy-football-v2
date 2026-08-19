@@ -1,5 +1,7 @@
 // Vercel Serverless Function - ESPN Fantasy Football API Proxy
-// This solves CORS issues by proxying requests server-to-server
+// Using Node.js runtime with proper ESPN headers
+
+export const runtime = "nodejs";
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -23,52 +25,42 @@ export default async function handler(req, res) {
   }
 
   try {
-    const leagueId = process.env.REACT_APP_ESPN_LEAGUE_ID || '809120';
-    const { view, seasonId, teamId, weekId } = req.query;
+    // ESPN API endpoint - confirmed working
+    const espnUrl = 'https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/2026/segments/0/leagues/809120?view=mSettings&view=mTeam&view=mStandings';
 
-    // Build the ESPN API URL
-    let url = `https://lm-api-reads.fantasy.espn.com/apis/site/v2/sports/football/classic/leagues/${leagueId}`;
-
-    // Add query parameters - build as array to handle multiple view params
-    const params = new URLSearchParams();
-    if (view) {
-      // view can be comma-separated or multiple params
-      const views = Array.isArray(view) ? view : view.split(',');
-      views.forEach(v => params.append('view', v.trim()));
-    }
-    if (seasonId) params.append('seasonId', seasonId);
-    if (teamId) params.append('teamId', teamId);
-    if (weekId) params.append('matchupPeriodId', weekId);
-
-    const queryString = params.toString();
-    if (queryString) {
-      url += '?' + queryString;
-    }
-
-    console.log('Fetching ESPN API:', url);
+    console.log('Fetching ESPN API:', espnUrl);
 
     // Fetch from ESPN API with proper headers
-    const espnResponse = await fetch(url, {
+    const response = await fetch(espnUrl, {
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json',
-        'Accept-Encoding': 'gzip, deflate',
+        'Accept': 'application/json,text/plain,*/*',
+        'Referer': 'https://fantasy.espn.com/',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36',
       },
+      cache: 'no-store',
+      redirect: 'follow',
     });
 
-    console.log('ESPN API Response Status:', espnResponse.status);
+    console.log('ESPN API Response Status:', response.status);
 
-    if (!espnResponse.ok) {
-      const errorText = await espnResponse.text();
-      console.error('ESPN API Error:', errorText);
-      return res.status(espnResponse.status).json({
-        error: `ESPN API returned ${espnResponse.status}`,
-        message: `Failed to fetch league data: ${espnResponse.statusText}`,
+    if (!response.ok) {
+      const body = await response.text();
+      console.log({
+        url: espnUrl,
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get('content-type'),
+        bodyPreview: body.slice(0, 1000),
+      });
+      return res.status(response.status).json({
+        error: `ESPN API returned ${response.status}`,
+        message: `Failed to fetch league data: ${response.statusText}`,
+        debug: { status: response.status, statusText: response.statusText },
       });
     }
 
-    const data = await espnResponse.json();
+    const data = await response.json();
     console.log('Successfully fetched ESPN data');
 
     // Return with CORS headers
