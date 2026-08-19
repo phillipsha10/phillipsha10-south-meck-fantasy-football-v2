@@ -5,7 +5,7 @@ const BrandedHeader = ({ leagueData }) => {
 
   const currentSeason = leagueData.season || new Date().getFullYear();
   const teamCount = leagueData.teams?.length || 0;
-  const scoringFormat = leagueData.scoringPeriodId || 'PPR';
+
 
   return (
     <div className="hero-header">
