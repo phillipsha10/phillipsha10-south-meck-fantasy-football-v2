@@ -28,13 +28,59 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
     const fetchSeasonData = async () => {
       try {
         console.log(`Fetching data for season ${selectedSeason}...`);
-        const response = await fetch(`/api/league?seasonId=${selectedSeason}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch season ${selectedSeason}`);
+
+        // For current season (2026), use ESPN API
+        if (selectedSeason === 2026) {
+          const response = await fetch(`/api/league?seasonId=${selectedSeason}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch season ${selectedSeason}`);
+          }
+          const data = await response.json();
+          console.log(`Successfully fetched ${selectedSeason} data from ESPN:`, data);
+          setSeasonLeagueData(data);
+        } else {
+          // For past seasons, use Google Sheets directly
+          console.log(`Fetching season ${selectedSeason} from Google Sheets...`);
+
+          const sheetResponse = await fetch(`/api/google-sheets?tab=${selectedSeason}`);
+          console.log(`Google Sheets response status: ${sheetResponse.status}`);
+
+          if (!sheetResponse.ok) {
+            throw new Error(`Failed to fetch season ${selectedSeason} from Google Sheets: ${sheetResponse.statusText}`);
+          }
+
+          const sheetData = await sheetResponse.json();
+          console.log(`Successfully fetched ${selectedSeason} data from Google Sheets:`, sheetData);
+
+          // Transform Google Sheet data to ESPN format for compatibility
+          if (sheetData.data && sheetData.data.length > 0) {
+            const transformedTeams = sheetData.data.map((row, index) => {
+              return {
+                id: index + 1,
+                name: row.TEAM || `Team ${index + 1}`,
+                abbrev: row.TEAM?.substring(0, 3).toUpperCase() || 'UNK',
+                logo: '🏈',
+                points: parseFloat(row.PF) || 0,
+                pointsAgainst: parseFloat(row.PA) || 0,
+                record: {
+                  overall: {
+                    wins: parseInt(row.Wins) || 0,
+                    losses: parseInt(row.Losses) || 0,
+                    percentage: parseFloat(row['Win %']) || 0,
+                    pointsFor: parseFloat(row.PF) || 0,
+                    pointsAgainst: parseFloat(row.PA) || 0,
+                  }
+                }
+              };
+            });
+
+            setSeasonLeagueData({
+              teams: transformedTeams,
+              schedule: [],
+              season: selectedSeason
+            });
+          }
         }
-        const data = await response.json();
-        console.log(`Successfully fetched ${selectedSeason} data:`, data);
-        setSeasonLeagueData(data);
       } catch (error) {
         console.error(`Error fetching season ${selectedSeason}:`, error);
       }
