@@ -5,11 +5,23 @@ export const runtime = "nodejs";
 
 const SHEET_ID = "1zopODvQe7POC1G-jbT78QO7dRV5RvqzGCf-qCoyNW-A";
 
-// Tab names and their IDs - you may need to get the actual gid values
-// gid=0 is the first sheet, but we need to identify the correct tabs
+// Tab names and their IDs (gid values from Google Sheet)
 const TABS = {
   overall: 0, // "Overall" tab - sorted by championships
   overall2025: 712152445, // "Overall (2025)" tab - sorted by win %
+  2026: 0, // 2026 Season (current)
+  2025: 1458478620, // 2025 Season
+  2024: 666783981, // 2024 Season
+  2023: 1753355751, // 2023 Season
+  2022: 619212077, // 2022 Season
+  2021: 2054409495, // 2021 Season
+  2020: 0, // 2020 Season
+  2019: 1135357214, // 2019 Season
+  2018: 683769960, // 2018 Season
+  2017: 1734201387, // 2017 Season
+  2016: 378493787, // 2016 Season
+  2015: 928972029, // 2015 Season
+  2014: 1891019671, // 2014 Season
 };
 
 export default async function handler(req, res) {
