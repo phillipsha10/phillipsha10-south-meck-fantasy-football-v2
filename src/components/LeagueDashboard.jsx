@@ -58,13 +58,32 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
             console.log('First row raw data:', sheetData.data[0]);
 
             const transformedTeams = sheetData.data.map((row, index) => {
-              const wins = parseInt(row.Wins) || 0;
-              const losses = parseInt(row.Losses) || parseInt(row['Losses']) || 0;
-              const championships = parseInt(row.Championships) || 0;
-              const runnersUp = parseInt(row['Runner-up']) || 0;
+              // Parse wins - use nullish coalescing to handle 0 correctly
+              const wins = parseInt(row.Wins) ?? 0;
+
+              // Parse losses - try multiple column name variations
+              // Using nullish coalescing (??) instead of || to handle 0 correctly
+              let losses = 0;
+              if (row.Losses !== undefined && row.Losses !== '' && !isNaN(parseInt(row.Losses))) {
+                losses = parseInt(row.Losses);
+              } else if (row.Loss !== undefined && row.Loss !== '' && !isNaN(parseInt(row.Loss))) {
+                losses = parseInt(row.Loss);
+              } else if (row.Ls !== undefined && row.Ls !== '' && !isNaN(parseInt(row.Ls))) {
+                losses = parseInt(row.Ls);
+              } else if (row.L !== undefined && row.L !== '' && !isNaN(parseInt(row.L))) {
+                losses = parseInt(row.L);
+              }
+
+              const championships = parseInt(row.Championships) ?? 0;
+              const runnersUp = parseInt(row['Runner-up']) ?? 0;
 
               if (index === 0) {
-                console.log(`First team data:`, { wins, losses, championships, runnersUp });
+                console.log('=== SHEET DATA PARSING DEBUG ===');
+                console.log('All column headers:', sheetData.headers);
+                console.log('Full raw first row:', row);
+                console.log('Extracted values:', { wins, losses, championships, runnersUp });
+                console.log('Looking for losses in - Losses:', row.Losses, '| Loss:', row.Loss, '| Ls:', row.Ls, '| L:', row.L);
+                console.log('============================');
               }
 
               return {
@@ -314,3 +333,4 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
 };
 
 export default LeagueDashboard;
+
