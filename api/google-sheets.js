@@ -110,24 +110,39 @@ export default async function handler(req, res) {
     // First line is headers
     const headers = parseCSVLine(lines[0]);
 
-    // Parse data rows
+    // Create case-insensitive header map for flexible column matching
+    const headerMap = {};
+    headers.forEach((header, index) => {
+      headerMap[header.toLowerCase()] = index;
+    });
+
+    // Parse data rows with header-agnostic value access
     let data = lines.slice(1).map(line => {
       const values = parseCSVLine(line);
       const row = {};
+
+      // Store both original headers and normalized lowercase access
       headers.forEach((header, index) => {
         row[header] = values[index] || '';
+        row[header.toLowerCase()] = values[index] || ''; // Add lowercase version
       });
+
       return row;
     }).filter(row => row.TEAM && row.TEAM.length > 0); // Filter out empty rows
 
+    // Debug: Log first few rows with all their data
+    console.log(`Raw parsed data sample (first 3 teams):`);
+    data.slice(0, 3).forEach((row, idx) => {
+      console.log(`  Team ${idx + 1}:`, JSON.stringify(row));
+    });
+
     // Deduplicate: Keep only first occurrence of each team name
-    // This removes duplicate entries that appear in championship/metadata sections
     const seenTeams = new Set();
     data = data.filter(row => {
       const teamName = row.TEAM?.trim();
       if (seenTeams.has(teamName)) {
         console.log(`Filtering out duplicate team: ${teamName}`);
-        return false; // Skip duplicates
+        return false;
       }
       seenTeams.add(teamName);
       return true;
@@ -139,7 +154,7 @@ export default async function handler(req, res) {
       const wins = parseInt(row.Wins) || 0;
 
       // Skip generic labels and metadata rows
-      if (teamName === 'Name' || teamName === 'TEAM' || wins === 0 && parseFloat(row.PF || 0) === 0) {
+      if (teamName === 'Name' || teamName === 'TEAM' || (wins === 0 && parseFloat(row.PF || 0) === 0)) {
         console.log(`Filtering out metadata row: ${teamName}`);
         return false;
       }
@@ -149,7 +164,8 @@ export default async function handler(req, res) {
     console.log(`Successfully parsed ${data.length} teams from Google Sheet`);
     console.log(`Column headers: ${JSON.stringify(headers)}`);
     if (data.length > 0) {
-      console.log(`First row parsed: ${JSON.stringify(data[0])}`);
+      console.log(`First team data:`, JSON.stringify(data[0]));
+      console.log(`Header map (case-insensitive):`, Object.keys(headerMap));
     }
 
     res.status(200).json({
