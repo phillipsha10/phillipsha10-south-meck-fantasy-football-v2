@@ -38,3 +38,4 @@ const BrandedHeader = ({ leagueData }) => {
 };
 
 export default BrandedHeader;
+
