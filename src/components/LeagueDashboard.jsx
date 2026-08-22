@@ -86,23 +86,19 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
               }
 
               return {
-                id: index + 1,
-                name: row.TEAM || `Team ${index + 1}`,
-                abbrev: row.TEAM?.substring(0, 3).toUpperCase() || 'UNK',
+                rank: index + 1,
+                teamId: index + 1,
+                teamName: row.TEAM || `Team ${index + 1}`,
+                owner: row.TEAM?.substring(0, 3).toUpperCase() || 'UNK',
                 logo: '🏈',
-                points: parseFloat(row.PF) || 0,
-                pointsAgainst: parseFloat(row.PA) || 0,
+                wins: wins,
+                losses: losses,
+                pointsFor: Math.round(parseFloat(row.PF) || 0),
+                pointsAgainst: Math.round(parseFloat(row.PA) || 0),
+                streak: 0,
+                streakType: 'NONE',
                 championships: championships,
-                runnersUp: runnersUp,
-                record: {
-                  overall: {
-                    wins: wins,
-                    losses: losses,
-                    percentage: parseFloat(row['Win %']) || 0,
-                    pointsFor: parseFloat(row.PF) || 0,
-                    pointsAgainst: parseFloat(row.PA) || 0,
-                  }
-                }
+                runnersUp: runnersUp
               };
             });
 
