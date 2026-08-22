@@ -117,3 +117,6 @@ const ChampionshipHistory = () => {
 };
 
 export default ChampionshipHistory;
+
+
+export default ChampionshipHistory;
