@@ -69,18 +69,50 @@ export default async function handler(req, res) {
 
     const csvText = await response.text();
 
-    // Parse CSV
+    // Parse CSV with proper quote handling
+    const parseCSVLine = (line) => {
+      const result = [];
+      let current = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+
+        if (char === '"') {
+          if (insideQuotes && nextChar === '"') {
+            // Escaped quote
+            current += '"';
+            i++; // Skip next quote
+          } else {
+            // Toggle quote state
+            insideQuotes = !insideQuotes;
+          }
+        } else if (char === ',' && !insideQuotes) {
+          // End of field
+          result.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      // Add last field
+      result.push(current.trim());
+      return result;
+    };
+
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) {
       return res.status(200).json({ data: [], headers: [] });
     }
 
     // First line is headers
-    const headers = lines[0].split(',').map(h => h.trim());
+    const headers = parseCSVLine(lines[0]);
 
     // Parse data rows
-    const data = lines.slice(1).map(line => {
-      const values = line.split(',').map(v => v.trim());
+    let data = lines.slice(1).map(line => {
+      const values = parseCSVLine(line);
       const row = {};
       headers.forEach((header, index) => {
         row[header] = values[index] || '';
@@ -88,7 +120,37 @@ export default async function handler(req, res) {
       return row;
     }).filter(row => row.TEAM && row.TEAM.length > 0); // Filter out empty rows
 
+    // Deduplicate: Keep only first occurrence of each team name
+    // This removes duplicate entries that appear in championship/metadata sections
+    const seenTeams = new Set();
+    data = data.filter(row => {
+      const teamName = row.TEAM?.trim();
+      if (seenTeams.has(teamName)) {
+        console.log(`Filtering out duplicate team: ${teamName}`);
+        return false; // Skip duplicates
+      }
+      seenTeams.add(teamName);
+      return true;
+    });
+
+    // Filter out likely metadata rows (no wins recorded, generic labels like "Name")
+    data = data.filter(row => {
+      const teamName = row.TEAM?.trim();
+      const wins = parseInt(row.Wins) || 0;
+
+      // Skip generic labels and metadata rows
+      if (teamName === 'Name' || teamName === 'TEAM' || wins === 0 && parseFloat(row.PF || 0) === 0) {
+        console.log(`Filtering out metadata row: ${teamName}`);
+        return false;
+      }
+      return true;
+    });
+
     console.log(`Successfully parsed ${data.length} teams from Google Sheet`);
+    console.log(`Column headers: ${JSON.stringify(headers)}`);
+    if (data.length > 0) {
+      console.log(`First row parsed: ${JSON.stringify(data[0])}`);
+    }
 
     res.status(200).json({
       success: true,
