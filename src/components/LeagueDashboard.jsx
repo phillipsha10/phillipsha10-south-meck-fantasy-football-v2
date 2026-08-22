@@ -68,7 +68,9 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
               // The API now provides both original-case and lowercase versions
               let losses = 0;
               const lossesValue =
-                row.Losses ?? row.losses ?? row.Loss ?? row.loss ??
+                row.Losses ?? row.losses ??
+                row.Loses ?? row.loses ??
+                row.Loss ?? row.loss ??
                 row.Ls ?? row.ls ?? row.L ?? row.l ?? '';
 
               if (lossesValue !== '' && !isNaN(parseInt(lossesValue))) {
