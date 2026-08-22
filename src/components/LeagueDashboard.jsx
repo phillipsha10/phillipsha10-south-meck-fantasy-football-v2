@@ -126,6 +126,14 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
       console.log('Teams found, count:', seasonLeagueData.teams.length);
       console.log('First team raw data:', JSON.stringify(seasonLeagueData.teams[0], null, 2));
 
+      // Check if data is already transformed (Google Sheets data already has wins/losses at top level)
+      const firstTeam = seasonLeagueData.teams[0];
+      if (firstTeam.wins !== undefined && firstTeam.losses !== undefined && firstTeam.teamName !== undefined) {
+        console.log('Data already transformed from Google Sheets, skipping ESPN transformation');
+        setTeams(seasonLeagueData.teams);
+        return;
+      }
+
       try {
         const transformedTeams = seasonLeagueData.teams.map((team, index) => {
           try {
