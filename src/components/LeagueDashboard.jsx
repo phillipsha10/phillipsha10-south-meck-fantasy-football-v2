@@ -56,6 +56,8 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
           if (sheetData.data && sheetData.data.length > 0) {
             console.log('Sheet headers:', sheetData.headers);
             console.log('First row raw data:', sheetData.data[0]);
+            console.log('Total teams received:', sheetData.data.length);
+            console.log('First 3 rows:', JSON.stringify(sheetData.data.slice(0, 3)));
 
             const transformedTeams = sheetData.data.map((row, index) => {
               // Parse wins - use nullish coalescing to handle 0 correctly
@@ -88,13 +90,13 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
               return {
                 rank: index + 1,
                 teamId: index + 1,
-                teamName: row.TEAM || `Team ${index + 1}`,
-                owner: row.TEAM?.substring(0, 3).toUpperCase() || 'UNK',
+                teamName: row.TEAM || row.team || `Team ${index + 1}`,
+                owner: row.Owner || row.owner || row.TEAM?.substring(0, 3).toUpperCase() || 'UNK',
                 logo: '🏈',
                 wins: wins,
                 losses: losses,
-                pointsFor: Math.round(parseFloat(row.PF) || 0),
-                pointsAgainst: Math.round(parseFloat(row.PA) || 0),
+                pointsFor: Math.round(parseFloat(row.PF || row.pf) || 0),
+                pointsAgainst: Math.round(parseFloat(row.PA || row.pa) || 0),
                 streak: 0,
                 streakType: 'NONE',
                 championships: championships,
