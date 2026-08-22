@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import StandingsTable from './StandingsTable';
-import ChampionshipHistory from './ChampionshipHistory';
+import ChampionshipHistory from './ChampionshipHistory_2';
 
 const LeagueDashboard = ({ leagueData, darkMode }) => {
   const [activeTab, setActiveTab] = useState('standings');
