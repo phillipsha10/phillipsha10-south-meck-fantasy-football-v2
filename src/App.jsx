@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App-branded.css';
-import BrandedHeader from './components/BrandedHeader';
 import BrandedNavbar from './components/BrandedNavbar';
-import LeagueDashboard from './components/LeagueDashboard';
 import BrandedFooter from './components/BrandedFooter';
+import LandingPage from './components/LandingPage';
+import PersonalDashboard from './components/PersonalDashboard';
+import AllTimeRankings from './components/AllTimeRankings';
+import LeagueDashboard from './components/LeagueDashboard';
 
 function App() {
   const [darkMode, setDarkMode] = useState(
@@ -12,6 +15,7 @@ function App() {
   const [leagueData, setLeagueData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allTeamsData, setAllTeamsData] = useState(null);
 
   // Apply dark mode to body on mount and when it changes
   useEffect(() => {
@@ -29,9 +33,7 @@ function App() {
       try {
         setLoading(true);
         // Fetch from our Vercel serverless function (which proxies ESPN API)
-        const response = await fetch(
-          '/api/league'
-        );
+        const response = await fetch('/api/league');
 
         if (!response.ok) {
           throw new Error('Failed to fetch league data from ESPN API');
@@ -39,6 +41,7 @@ function App() {
 
         const data = await response.json();
         setLeagueData(data);
+        setAllTeamsData(data.teams || []);
         setError(null);
       } catch (err) {
         console.error('Error loading league data:', err);
@@ -62,38 +65,72 @@ function App() {
   };
 
   return (
-    <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
-      <BrandedNavbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+    <Router>
+      <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
+        <BrandedNavbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
 
-      <div className="main-content">
-        <BrandedHeader leagueData={leagueData} />
+        <div className="main-content">
+          <Routes>
+            {/* Landing Page - Entry Portal */}
+            <Route
+              path="/"
+              element={<LandingPage darkMode={darkMode} />}
+            />
 
-        {loading && (
-          <div className="loading">
-            <div className="spinner"></div>
-            <p>Loading league data...</p>
-          </div>
-        )}
+            {/* Personal Dashboard */}
+            <Route
+              path="/dashboard/:teamId"
+              element={
+                <PersonalDashboard
+                  leagueData={leagueData}
+                  darkMode={darkMode}
+                  allTeamsData={allTeamsData}
+                />
+              }
+            />
 
-        {error && (
-          <div className="card" style={{ borderLeftColor: '#ff6b6b' }}>
-            <h3 style={{ color: '#ff6b6b' }}>⚠️ Loading Notice</h3>
-            <p>{error}</p>
-            <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
-              Displaying league data. Some features may be limited.
-            </p>
-          </div>
-        )}
+            {/* All-Time Rankings */}
+            <Route
+              path="/rankings"
+              element={
+                !loading && leagueData ? (
+                  <LeagueDashboard leagueData={leagueData} darkMode={darkMode} />
+                ) : (
+                  <div className="loading">
+                    <div className="spinner"></div>
+                    <p>Loading rankings...</p>
+                  </div>
+                )
+              }
+            />
 
-        {!loading && leagueData && (
-          <LeagueDashboard leagueData={leagueData} darkMode={darkMode} />
-        )}
+            {/* Fallback to landing page */}
+            <Route path="*" element={<LandingPage darkMode={darkMode} />} />
+          </Routes>
+
+          {/* Show loading/error at top level if needed */}
+          {loading && !leagueData && (
+            <div className="loading">
+              <div className="spinner"></div>
+              <p>Loading league data...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="card" style={{ borderLeftColor: '#ff6b6b', margin: '1rem' }}>
+              <h3 style={{ color: '#ff6b6b' }}>⚠️ Loading Notice</h3>
+              <p>{error}</p>
+              <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
+                Some features may be limited.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <BrandedFooter />
       </div>
-
-      <BrandedFooter />
-    </div>
+    </Router>
   );
 }
 
 export default App;
-
