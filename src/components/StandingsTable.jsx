@@ -16,6 +16,10 @@ const StandingsTable = ({ teams }) => {
         aVal = b.wins - a.wins;
         bVal = 0;
         return aVal;
+      case 'losses':
+        aVal = a.losses - b.losses;
+        bVal = 0;
+        return aVal;
       case 'pointsFor':
         aVal = b.pointsFor - a.pointsFor;
         bVal = 0;
@@ -58,7 +62,10 @@ const StandingsTable = ({ teams }) => {
             <th>Team</th>
             <th>Owner</th>
             <th style={{ cursor: 'pointer' }} onClick={() => handleSort('wins')}>
-              Record {sortBy === 'wins' && (sortDir === 'asc' ? '↑' : '↓')}
+              Wins {sortBy === 'wins' && (sortDir === 'asc' ? '↑' : '↓')}
+            </th>
+            <th style={{ cursor: 'pointer' }} onClick={() => handleSort('losses')}>
+              Losses {sortBy === 'losses' && (sortDir === 'asc' ? '↑' : '↓')}
             </th>
             <th style={{ cursor: 'pointer' }} onClick={() => handleSort('pointsFor')}>
               Points For {sortBy === 'pointsFor' && (sortDir === 'asc' ? '↑' : '↓')}
@@ -89,8 +96,11 @@ const StandingsTable = ({ teams }) => {
                 )}
               </td>
               <td>{team.owner}</td>
-              <td>
-                {team.wins}-{team.losses}
+              <td style={{ fontWeight: '600', color: '#2ecc71' }}>
+                {team.wins}
+              </td>
+              <td style={{ fontWeight: '600', color: '#ff6b6b' }}>
+                {team.losses}
               </td>
               <td style={{ color: '#c41e3a', fontWeight: '600' }}>
                 {team.pointsFor}
@@ -121,3 +131,4 @@ const StandingsTable = ({ teams }) => {
 };
 
 export default StandingsTable;
+
