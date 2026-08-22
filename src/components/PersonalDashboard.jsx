@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import CareerStats from './CareerStats';
 import YearByYearRecord from './YearByYearRecord';
-import DraftHistory from './DraftHistory';
-import ScheduleCard from './ScheduleCard';
+import DraftHistory from './DraftHistory_2';
+import ScheduleCard from './ScheduleCard_2';
 import LeagueNews from './LeagueNews';
-import WeeklyAwards from './WeeklyAwards';
-import HeadToHeadRecords from './HeadToHeadRecords';
+import WeeklyAwards from './WeeklyAwards_2';
+import HeadToHeadRecords from './HeadToHeadRecords_2';
 
 const PersonalDashboard = ({ leagueData, darkMode, allTeamsData }) => {
   const { teamId } = useParams();
