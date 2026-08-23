@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import CareerStats from './CareerStats';
-import YearByYearRecord from './YearByYearRecord';
-import DraftHistory from './DraftHistory_2';
-import ScheduleCard from './ScheduleCard_2';
-import LeagueNews from './LeagueNews';
-import WeeklyAwards from './WeeklyAwards_2';
-import HeadToHeadRecords from './HeadToHeadRecords_2';
 
 const PersonalDashboard = ({ leagueData, darkMode, allTeamsData }) => {
   const { teamId } = useParams();
   const [selectedTeam, setSelectedTeam] = useState(null);
-  const [teamHistory, setTeamHistory] = useState(null);
   const [isShaking, setIsShaking] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
 
@@ -34,33 +26,6 @@ const PersonalDashboard = ({ leagueData, darkMode, allTeamsData }) => {
       }, 800);
     }
   }, []);
-
-  // Fetch team history data (all seasons)
-  useEffect(() => {
-    const loadTeamHistory = async () => {
-      try {
-        // This would typically fetch from an API that aggregates all historical data
-        // For now, we'll structure it based on available data
-        setTeamHistory({
-          allTimeStats: {
-            totalWins: 0,
-            totalLosses: 0,
-            championships: 0,
-            runnersUp: 0,
-            lastPlaces: 0
-          },
-          byYear: {},
-          draftHistory: {}
-        });
-      } catch (error) {
-        console.error('Error loading team history:', error);
-      }
-    };
-
-    if (selectedTeam) {
-      loadTeamHistory();
-    }
-  }, [selectedTeam]);
 
   if (!selectedTeam) {
     return (
@@ -139,61 +104,110 @@ const PersonalDashboard = ({ leagueData, darkMode, allTeamsData }) => {
         </div>
       </div>
 
-      {/* Main Dashboard Grid */}
+      {/* Placeholder Content - Dashboard sections will go here */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
         gap: '2rem',
         marginBottom: '2rem'
       }}>
-        {/* Career Stats */}
-        <div style={{ animation: 'fadeIn 0.6s ease-in-out' }}>
-          <CareerStats team={selectedTeam} darkMode={darkMode} />
+        <div style={{
+          background: darkMode ? '#2a2a2a' : '#f8f8f8',
+          border: '2px solid #c41e3a',
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          animation: 'fadeIn 0.6s ease-in-out'
+        }}>
+          <p style={{ color: '#888', margin: 0 }}>📊 Career Stats</p>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '1rem' }}>
+            (Coming soon)
+          </p>
         </div>
 
-        {/* Year-by-Year Record */}
-        <div style={{ animation: 'fadeIn 0.7s ease-in-out' }}>
-          <YearByYearRecord team={selectedTeam} darkMode={darkMode} allTeamsData={allTeamsData} />
+        <div style={{
+          background: darkMode ? '#2a2a2a' : '#f8f8f8',
+          border: '2px solid #c41e3a',
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          animation: 'fadeIn 0.7s ease-in-out'
+        }}>
+          <p style={{ color: '#888', margin: 0 }}>📈 Year-by-Year Record</p>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '1rem' }}>
+            (Coming soon)
+          </p>
         </div>
-      </div>
 
-      {/* Draft History */}
-      <div style={{
-        marginBottom: '2rem',
-        animation: 'fadeIn 0.8s ease-in-out'
-      }}>
-        <DraftHistory team={selectedTeam} darkMode={darkMode} />
-      </div>
+        <div style={{
+          background: darkMode ? '#2a2a2a' : '#f8f8f8',
+          border: '2px solid #c41e3a',
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          animation: 'fadeIn 0.8s ease-in-out'
+        }}>
+          <p style={{ color: '#888', margin: 0 }}>📋 Draft History</p>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '1rem' }}>
+            (Coming soon)
+          </p>
+        </div>
 
-      {/* Schedule & Next Opponent */}
-      <div style={{
-        marginBottom: '2rem',
-        animation: 'fadeIn 0.9s ease-in-out'
-      }}>
-        <ScheduleCard team={selectedTeam} darkMode={darkMode} leagueData={leagueData} />
-      </div>
+        <div style={{
+          background: darkMode ? '#2a2a2a' : '#f8f8f8',
+          border: '2px solid #c41e3a',
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          animation: 'fadeIn 0.9s ease-in-out'
+        }}>
+          <p style={{ color: '#888', margin: 0 }}>🏟️ Schedule</p>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '1rem' }}>
+            (Coming soon)
+          </p>
+        </div>
 
-      {/* Head-to-Head Records */}
-      <div style={{
-        marginBottom: '2rem',
-        animation: 'fadeIn 1s ease-in-out'
-      }}>
-        <HeadToHeadRecords team={selectedTeam} darkMode={darkMode} allTeamsData={allTeamsData} />
-      </div>
+        <div style={{
+          background: darkMode ? '#2a2a2a' : '#f8f8f8',
+          border: '2px solid #c41e3a',
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          animation: 'fadeIn 1.0s ease-in-out'
+        }}>
+          <p style={{ color: '#888', margin: 0 }}>🏁 Head-to-Head</p>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '1rem' }}>
+            (Coming soon)
+          </p>
+        </div>
 
-      {/* League News */}
-      <div style={{
-        marginBottom: '2rem',
-        animation: 'fadeIn 1.1s ease-in-out'
-      }}>
-        <LeagueNews darkMode={darkMode} />
-      </div>
+        <div style={{
+          background: darkMode ? '#2a2a2a' : '#f8f8f8',
+          border: '2px solid #c41e3a',
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          animation: 'fadeIn 1.1s ease-in-out'
+        }}>
+          <p style={{ color: '#888', margin: 0 }}>📰 League News</p>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '1rem' }}>
+            (Coming soon)
+          </p>
+        </div>
 
-      {/* Weekly Awards */}
-      <div style={{
-        animation: 'fadeIn 1.2s ease-in-out'
-      }}>
-        <WeeklyAwards darkMode={darkMode} leagueData={leagueData} />
+        <div style={{
+          background: darkMode ? '#2a2a2a' : '#f8f8f8',
+          border: '2px solid #c41e3a',
+          borderRadius: '8px',
+          padding: '2rem',
+          textAlign: 'center',
+          animation: 'fadeIn 1.2s ease-in-out'
+        }}>
+          <p style={{ color: '#888', margin: 0 }}>🏆 Weekly Awards</p>
+          <p style={{ color: '#888', fontSize: '0.9rem', marginTop: '1rem' }}>
+            (Coming soon)
+          </p>
+        </div>
       </div>
 
       {/* Styles */}
