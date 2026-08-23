@@ -1,83 +1,79 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App-branded.css';
 import BrandedNavbar from './components/BrandedNavbar';
 import BrandedFooter from './components/BrandedFooter';
 import LandingPage from './components/LandingPage';
 import PersonalDashboard from './components/PersonalDashboard';
-import AllTimeRankings from './components/AllTimeRankings';
 import LeagueDashboard from './components/LeagueDashboard';
+import './App-branded.css';
 
-function App() {
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('darkMode') === 'true'
-  );
+const App = () => {
+  const [darkMode, setDarkMode] = useState(() => {
+    // Load dark mode preference from localStorage
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
+
   const [leagueData, setLeagueData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [allTeamsData, setAllTeamsData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Apply dark mode to body on mount and when it changes
-  useEffect(() => {
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-    localStorage.setItem('darkMode', darkMode);
-  }, [darkMode]);
+  // Toggle dark mode and save preference
+  const toggleDarkMode = () => {
+    setDarkMode((prev) => {
+      const newMode = !prev;
+      localStorage.setItem('darkMode', JSON.stringify(newMode));
+      return newMode;
+    });
+  };
 
   // Fetch league data on mount
   useEffect(() => {
-    const loadLeagueData = async () => {
+    const fetchLeagueData = async () => {
       try {
-        setLoading(true);
-        // Fetch from our Vercel serverless function (which proxies ESPN API)
+        // Try to fetch from your API endpoint
         const response = await fetch('/api/league');
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch league data from ESPN API');
+        if (response.ok) {
+          const data = await response.json();
+          setLeagueData(data);
+          setAllTeamsData(data.teams || []);
         }
-
-        const data = await response.json();
-        setLeagueData(data);
-        setAllTeamsData(data.teams || []);
-        setError(null);
-      } catch (err) {
-        console.error('Error loading league data:', err);
-        setError(err.message);
-        // Set some mock data as fallback
-        setLeagueData({
-          name: 'South Mecklenburg Fantasy Football',
-          teams: [],
-          season: new Date().getFullYear(),
-        });
+      } catch (error) {
+        console.error('Error fetching league data:', error);
+        // Fallback: use empty data, components will handle gracefully
+        setLeagueData({});
+        setAllTeamsData([]);
       } finally {
         setLoading(false);
       }
     };
 
-    loadLeagueData();
+    fetchLeagueData();
   }, []);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
 
   return (
     <Router>
-      <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
-        <BrandedNavbar darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
+      <div
+        className={darkMode ? 'dark-mode' : ''}
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: darkMode ? '#1a1a1a' : '#ffffff',
+          color: darkMode ? '#ffffff' : '#000000',
+          transition: 'background-color 0.3s ease, color 0.3s ease'
+        }}
+      >
+        {/* Navigation */}
+        <BrandedNavbar darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
-        <div className="main-content">
+        {/* Main Content */}
+        <main style={{ flex: 1 }}>
           <Routes>
-            {/* Landing Page - Entry Portal */}
-            <Route
-              path="/"
-              element={<LandingPage darkMode={darkMode} />}
-            />
+            {/* Landing Page - Entry Point */}
+            <Route path="/" element={<LandingPage darkMode={darkMode} />} />
 
-            {/* Personal Dashboard */}
+            {/* Personal Dashboard - Individual Team Portal */}
             <Route
               path="/dashboard/:teamId"
               element={
@@ -92,45 +88,19 @@ function App() {
             {/* All-Time Rankings */}
             <Route
               path="/rankings"
-              element={
-                !loading && leagueData ? (
-                  <LeagueDashboard leagueData={leagueData} darkMode={darkMode} />
-                ) : (
-                  <div className="loading">
-                    <div className="spinner"></div>
-                    <p>Loading rankings...</p>
-                  </div>
-                )
-              }
+              element={<LeagueDashboard leagueData={leagueData} darkMode={darkMode} />}
             />
 
-            {/* Fallback to landing page */}
+            {/* Fallback to Landing Page */}
             <Route path="*" element={<LandingPage darkMode={darkMode} />} />
           </Routes>
+        </main>
 
-          {/* Show loading/error at top level if needed */}
-          {loading && !leagueData && (
-            <div className="loading">
-              <div className="spinner"></div>
-              <p>Loading league data...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="card" style={{ borderLeftColor: '#ff6b6b', margin: '1rem' }}>
-              <h3 style={{ color: '#ff6b6b' }}>⚠️ Loading Notice</h3>
-              <p>{error}</p>
-              <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
-                Some features may be limited.
-              </p>
-            </div>
-          )}
-        </div>
-
-        <BrandedFooter />
+        {/* Footer */}
+        <BrandedFooter darkMode={darkMode} />
       </div>
     </Router>
   );
-}
+};
 
-export default App; 
+export default App;
