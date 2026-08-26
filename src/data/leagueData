@@ -1,0 +1,88 @@
+// ============================================================
+// SOUTH MECK FANTASY FOOTBALL — STATIC LEAGUE DATA
+// ============================================================
+// This file is the single source of truth for all historical
+// league data. No live API calls, no database — just plug in
+// real numbers here as you transcribe screenshots.
+//
+// HOW TO ADD A NEW SEASON:
+// 1. Make sure everyone who played that year is listed in
+//    PEOPLE below (id must be a unique lowercase-dash slug,
+//    e.g. "harrison-phillips")
+// 2. Add one entry per person to YEAR_BY_YEAR[personId] for
+//    that season
+// 3. Career totals (record, win %, championships, etc.) are
+//    calculated automatically — you never have to total
+//    anything by hand.
+//
+// finish can be: 'Champion', 'Runner-Up', 'Last Place', or
+// null if not known yet (e.g. playoffs not recorded).
+// ============================================================
+
+export const PEOPLE = [
+  { id: 'lee-sutton', name: 'Lee Sutton' },
+  { id: 'stephen-hasty', name: 'Stephen Hasty' },
+  { id: 'b-mclovin', name: 'B McLovin' },
+  { id: 'harrison-phillips', name: 'Harrison Phillips' },
+  { id: 'caleb-cunninghgam', name: 'Caleb Cunninghgam' },
+  { id: 'jakob-stewart', name: 'Jakob Stewart' },
+  { id: 'alex-vee', name: 'Alex Vee' },
+  { id: 'john-harper', name: 'John Harper' },
+  { id: 'joe-neely', name: 'Joe Neely' },
+  { id: 'stephen-cheetham', name: 'Stephen Cheetham' },
+];
+
+// One array per person, one object per season played.
+export const YEAR_BY_YEAR = {
+  'lee-sutton': [
+    { year: 2014, teamName: 'A Graham Of Cam', wins: 8, losses: 5, pointsFor: 1217.7, pointsAgainst: 1182.9, finish: null },
+  ],
+  'stephen-hasty': [
+    { year: 2014, teamName: 'Staff Scorgasms', wins: 7, losses: 6, pointsFor: 1205.8, pointsAgainst: 1291.0, finish: null },
+  ],
+  'b-mclovin': [
+    { year: 2014, teamName: 'B Marsh', wins: 7, losses: 6, pointsFor: 1288.3, pointsAgainst: 1223.3, finish: null },
+  ],
+  'harrison-phillips': [
+    { year: 2014, teamName: 'Team Phillips', wins: 8, losses: 5, pointsFor: 1245.8, pointsAgainst: 1150.6, finish: null },
+  ],
+  'caleb-cunninghgam': [
+    { year: 2014, teamName: 'Team cunninhgam', wins: 6, losses: 7, pointsFor: 1299.0, pointsAgainst: 1209.7, finish: null },
+  ],
+  'jakob-stewart': [
+    { year: 2014, teamName: "Le'Veon on A Prayer", wins: 6, losses: 7, pointsFor: 1296.0, pointsAgainst: 1282.9, finish: null },
+  ],
+  'alex-vee': [
+    { year: 2014, teamName: 'Team Vee', wins: 7, losses: 6, pointsFor: 1122.6, pointsAgainst: 1215.5, finish: null },
+  ],
+  'john-harper': [
+    { year: 2014, teamName: 'Team harper', wins: 5, losses: 8, pointsFor: 1276.5, pointsAgainst: 1345.0, finish: null },
+  ],
+  'joe-neely': [
+    { year: 2014, teamName: 'Cutler baby breast milk', wins: 6, losses: 7, pointsFor: 1202.5, pointsAgainst: 1203.7, finish: null },
+  ],
+  'stephen-cheetham': [
+    { year: 2014, teamName: 'The Real McCoy', wins: 5, losses: 8, pointsFor: 1194.6, pointsAgainst: 1244.2, finish: null },
+  ],
+};
+
+// Calculates all-time career totals for a person from YEAR_BY_YEAR.
+// Nothing here needs to be edited by hand — it's all derived.
+export function getCareerStats(personId) {
+  const seasons = YEAR_BY_YEAR[personId] || [];
+  const totals = seasons.reduce(
+    (acc, s) => {
+      acc.wins += s.wins;
+      acc.losses += s.losses;
+      if (s.finish === 'Champion') acc.championships += 1;
+      if (s.finish === 'Runner-Up') acc.runnerUps += 1;
+      if (s.finish === 'Last Place') acc.lastPlaces += 1;
+      return acc;
+    },
+    { wins: 0, losses: 0, championships: 0, runnerUps: 0, lastPlaces: 0 }
+  );
+  const totalGames = totals.wins + totals.losses;
+  totals.winPct = totalGames > 0 ? (totals.wins / totalGames) * 100 : 0;
+  totals.seasonsPlayed = seasons.length;
+  return totals;
+}
