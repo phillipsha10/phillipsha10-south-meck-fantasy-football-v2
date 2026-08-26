@@ -1,17 +1,10 @@
 import React from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { PEOPLE } from '../data/leagueData';
 
 const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
-  const { teamId } = useParams();
-  const navigate = useNavigate();
-  const selectedTeam = localStorage.getItem('selectedTeam')
-    ? JSON.parse(localStorage.getItem('selectedTeam'))
-    : null;
-
-  const handleHome = () => {
-    localStorage.removeItem('selectedTeam');
-    navigate('/');
-  };
+  const { personId } = useParams();
+  const person = PEOPLE.find((p) => p.id === personId);
 
   return (
     <nav
@@ -27,20 +20,21 @@ const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
         borderBottom: '2px solid #d4af37',
         position: 'sticky',
         top: 0,
-        zIndex: 100
+        zIndex: 100,
+        flexWrap: 'wrap',
+        gap: '1rem',
       }}
     >
       {/* Left: Logo/Home Link */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
         <Link
           to="/"
-          onClick={handleHome}
           style={{
             textDecoration: 'none',
             display: 'flex',
             alignItems: 'center',
             gap: '0.75rem',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
         >
           <span style={{ fontSize: '1.8rem' }}>🏈</span>
@@ -52,7 +46,7 @@ const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
                 fontWeight: '800',
                 color: '#d4af37',
                 textTransform: 'uppercase',
-                letterSpacing: '1px'
+                letterSpacing: '1px',
               }}
             >
               South Meck
@@ -62,7 +56,7 @@ const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
                 margin: 0,
                 fontSize: '0.75rem',
                 color: '#fff',
-                fontWeight: '400'
+                fontWeight: '400',
               }}
             >
               Fantasy Football
@@ -70,46 +64,30 @@ const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
           </div>
         </Link>
 
-        {/* Show team name when on dashboard */}
-        {teamId && selectedTeam && (
+        {/* Show person name when on their dashboard */}
+        {person && (
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
               paddingLeft: '1.5rem',
-              borderLeft: '2px solid #d4af37'
+              borderLeft: '2px solid #d4af37',
             }}
           >
-            <span style={{ fontSize: '1.5rem' }}>{selectedTeam.logo}</span>
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '0.9rem',
-                  color: '#fff',
-                  fontWeight: '600'
-                }}
-              >
-                {selectedTeam.teamName}
-              </p>
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: '0.75rem',
-                  color: '#d4af37'
-                }}
-              >
-                {selectedTeam.owner}
-              </p>
-            </div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: '0.9rem',
+                color: '#fff',
+                fontWeight: '600',
+              }}
+            >
+              {person.name}
+            </p>
           </div>
         )}
       </div>
 
       {/* Right: Navigation Links & Dark Mode Toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        {/* All-Time Rankings Link */}
         <Link
           to="/rankings"
           style={{
@@ -120,21 +98,18 @@ const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
             padding: '0.5rem 1rem',
             borderRadius: '4px',
             transition: 'all 0.2s ease',
-            cursor: 'pointer'
+            cursor: 'pointer',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = 'rgba(212, 175, 55, 0.2)';
-            e.currentTarget.style.transform = 'scale(1.05)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = 'transparent';
-            e.currentTarget.style.transform = 'scale(1)';
           }}
         >
           ⭐ Rankings
         </Link>
 
-        {/* Dark Mode Toggle */}
         <button
           onClick={toggleDarkMode}
           style={{
@@ -150,13 +125,7 @@ const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.3s ease',
-            fontWeight: '600'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
+            fontWeight: '600',
           }}
           title={darkMode ? 'Light Mode' : 'Dark Mode'}
         >
