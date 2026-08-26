@@ -1,140 +1,151 @@
-import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PEOPLE } from '../data/leagueData';
 
-const BrandedNavbar = ({ darkMode, toggleDarkMode }) => {
-  const { personId } = useParams();
-  const person = PEOPLE.find((p) => p.id === personId);
+const LandingPage = () => {
+  const navigate = useNavigate();
+  const [selectedId, setSelectedId] = useState('');
+
+  const sortedPeople = [...PEOPLE].sort((a, b) => a.name.localeCompare(b.name));
+
+  const handleEnter = () => {
+    if (!selectedId) return;
+    navigate(`/dashboard/${selectedId}`);
+  };
 
   return (
-    <nav
+    <div
       style={{
-        background: darkMode
-          ? 'linear-gradient(90deg, #1a1a1a 0%, #2a2a2a 100%)'
-          : 'linear-gradient(90deg, #c41e3a 0%, #8b162a 100%)',
-        padding: '1rem 2rem',
+        minHeight: 'calc(100vh - 140px)',
         display: 'flex',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
         alignItems: 'center',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-        borderBottom: '2px solid #d4af37',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        flexWrap: 'wrap',
-        gap: '1rem',
+        justifyContent: 'center',
+        backgroundImage:
+          'linear-gradient(rgba(10,10,10,0.7), rgba(10,10,10,0.75)), url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=1000&fit=crop")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        padding: '3rem 2rem',
+        textAlign: 'center',
       }}
     >
-      {/* Left: Logo/Home Link */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <Link
-          to="/"
+      <div style={{ animation: 'fadeIn 1s ease-in-out' }}>
+        <h1
           style={{
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            cursor: 'pointer',
+            fontSize: 'clamp(1.8rem, 5vw, 3.2rem)',
+            fontWeight: '800',
+            color: '#ffffff',
+            textShadow: '3px 3px 8px rgba(0,0,0,0.9)',
+            margin: '0 0 1rem 0',
+            letterSpacing: '1px',
+            textTransform: 'uppercase',
+            lineHeight: 1.2,
           }}
         >
-          <span style={{ fontSize: '1.8rem' }}>🏈</span>
-          <div>
-            <h1
-              style={{
-                margin: 0,
-                fontSize: '1.2rem',
-                fontWeight: '800',
-                color: '#d4af37',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-              }}
-            >
-              South Meck
-            </h1>
-            <p
-              style={{
-                margin: 0,
-                fontSize: '0.75rem',
-                color: '#fff',
-                fontWeight: '400',
-              }}
-            >
-              Fantasy Football
-            </p>
-          </div>
-        </Link>
+          South Meck Fantasy Football League
+        </h1>
 
-        {/* Show person name when on their dashboard */}
-        {person && (
-          <div
+        <p
+          style={{
+            fontSize: '1.1rem',
+            color: '#d4af37',
+            fontWeight: '700',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.9)',
+            margin: '0 0 0.35rem 0',
+            letterSpacing: '2px',
+          }}
+        >
+          EST 2008
+        </p>
+        <p
+          style={{
+            fontSize: '1.1rem',
+            color: '#d4af37',
+            fontWeight: '700',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.9)',
+            margin: '0 0 2.5rem 0',
+            letterSpacing: '2px',
+          }}
+        >
+          Current Season - 18
+        </p>
+
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            alignItems: 'center',
+          }}
+        >
+          <select
+            value={selectedId}
+            onChange={(e) => setSelectedId(e.target.value)}
             style={{
-              paddingLeft: '1.5rem',
-              borderLeft: '2px solid #d4af37',
+              width: '320px',
+              maxWidth: '90vw',
+              padding: '1rem 1.25rem',
+              fontSize: '1.05rem',
+              fontWeight: '600',
+              borderRadius: '8px',
+              border: '2px solid #d4af37',
+              backgroundColor: '#1a1a1a',
+              color: '#ffffff',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
             }}
           >
-            <p
-              style={{
-                margin: 0,
-                fontSize: '0.9rem',
-                color: '#fff',
-                fontWeight: '600',
-              }}
-            >
-              {person.name}
-            </p>
-          </div>
-        )}
+            <option value="" disabled>
+              Select Your Name
+            </option>
+            {sortedPeople.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={handleEnter}
+            disabled={!selectedId}
+            style={{
+              width: '320px',
+              maxWidth: '90vw',
+              padding: '1rem',
+              fontSize: '1.1rem',
+              fontWeight: '700',
+              backgroundColor: selectedId ? '#c41e3a' : '#555',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: selectedId ? 'pointer' : 'not-allowed',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              boxShadow: selectedId ? '0 8px 16px rgba(196,30,58,0.4)' : 'none',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              if (selectedId) e.target.style.backgroundColor = '#a01729';
+            }}
+            onMouseLeave={(e) => {
+              if (selectedId) e.target.style.backgroundColor = '#c41e3a';
+            }}
+          >
+            ⚡ Enter Portal
+          </button>
+        </div>
       </div>
 
-      {/* Right: Navigation Links & Dark Mode Toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-        <Link
-          to="/rankings"
-          style={{
-            color: '#d4af37',
-            textDecoration: 'none',
-            fontWeight: '600',
-            fontSize: '0.95rem',
-            padding: '0.5rem 1rem',
-            borderRadius: '4px',
-            transition: 'all 0.2s ease',
-            cursor: 'pointer',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.2)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent';
-          }}
-        >
-          ⭐ Rankings
-        </Link>
-
-        <button
-          onClick={toggleDarkMode}
-          style={{
-            background: darkMode ? '#d4af37' : '#1a1a1a',
-            border: '2px solid #d4af37',
-            color: darkMode ? '#1a1a1a' : '#d4af37',
-            width: '45px',
-            height: '45px',
-            borderRadius: '50%',
-            cursor: 'pointer',
-            fontSize: '1.2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.3s ease',
-            fontWeight: '600',
-          }}
-          title={darkMode ? 'Light Mode' : 'Dark Mode'}
-        >
-          {darkMode ? '☀️' : '🌙'}
-        </button>
-      </div>
-    </nav>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+    </div>
   );
 };
 
-export default BrandedNavbar;
+export default LandingPage;
 
