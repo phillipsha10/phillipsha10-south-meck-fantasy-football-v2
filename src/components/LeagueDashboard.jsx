@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import StandingsTable from './StandingsTable';
-import ChampionshipHistory from './ChampionshipHistory_2';
 
 const LeagueDashboard = ({ leagueData, darkMode }) => {
   const [activeTab, setActiveTab] = useState('standings');
@@ -226,7 +225,17 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
           {activeTab === 'standings' && (
             <StandingsTable teams={leagueData?.teams || []} />
           )}
-          {activeTab === 'history' && <ChampionshipHistory />}
+          {activeTab === 'history' && (
+            <div
+              style={{
+                textAlign: 'center',
+                padding: '3rem',
+                color: darkMode ? '#999' : '#666',
+              }}
+            >
+              <p>🏆 Championship History — coming soon</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -247,3 +256,4 @@ const LeagueDashboard = ({ leagueData, darkMode }) => {
 };
 
 export default LeagueDashboard;
+
